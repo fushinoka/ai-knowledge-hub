@@ -18,7 +18,10 @@ places, with no fast way to find what I actually needed.
 
 ## How it works
 
-1. You paste in a title and some content.
+1. You paste in a title and some content, or upload a PDF/`.txt` file directly
+   — the `/api/parse-file` route extracts the raw text server-side (via
+   `pdf-parse` for PDFs) and drops it straight into the content field for you
+   to review before saving.
 2. The `/api/summarize` route sends the content to OpenAI for a short summary,
    generates a vector embedding of the text, and saves everything to Supabase.
 3. Searching runs your query through the same embedding model, then Postgres
@@ -59,6 +62,7 @@ src/
   app/
     api/summarize/    # creates a document: summary + embedding + insert
     api/search/        # semantic search over the user's documents
+    api/parse-file/    # extracts text from an uploaded PDF or .txt file
     documents/          # new document form, single document view
     login/               # email/password auth
   components/          # UI components (forms, cards, search bar, nav)
@@ -74,8 +78,8 @@ supabase/
 
 ## Notes / things I'd improve next
 
-- File upload (PDF/docx) isn't wired up yet — right now you paste raw text.
-  Would add parsing with something like `pdf-parse` before summarizing.
+- File upload currently supports PDF and `.txt` only — `.docx` support would
+  be a natural next addition (e.g. with `mammoth`).
 - No streaming on the summary response — could use the OpenAI streaming API
   so the summary appears progressively instead of all at once.
 - Search currently only ranks by similarity threshold; could add hybrid
